@@ -27,6 +27,13 @@ function createPeerConnection() {
     pc.onicecandidate = function (evt) {
         if (!evt.candidate) {
             document.getElementById('localSDP').value = pc.localDescription.sdp;
+
+            new QRCode(document.getElementById("localSDPQrcode"), {
+                text: pc.localDescription.sdp,
+                width: 128,
+                height: 128,
+                correctLevel : QRCode.CorrectLevel.H
+            });
         }
     };
 
