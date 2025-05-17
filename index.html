@@ -81,8 +81,17 @@
                             </div>
                             <div class="field-body">
                                 <div class="field">
-                                    <div class="control">
-                                        <textarea class="textarea" id="remoteSDP" name="remoteSDP"></textarea>
+                                    <div class="columns">
+                                        <div class="column is-4">
+                                            <div class="control">
+                                                <div id="remoteSDPReader"></div>
+                                            </div>
+                                        </div>
+                                        <div class="column is-8">
+                                            <div class="control">
+                                                <textarea class="textarea" id="remoteSDP" name="remoteSDP"></textarea>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -138,6 +147,7 @@
     </div>
 
     <script src="qrcode.min.js"></script><!-- https://github.com/davidshimjs/qrcodejs -->
+    <script src="html5-qrcode.min.js"></script><!-- https://github.com/mebjas/html5-qrcode -->
     <script src="app.js"></script>
 </body>
 

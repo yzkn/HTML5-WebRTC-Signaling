@@ -21,6 +21,18 @@ window.addEventListener('DOMContentLoaded', function () {
     });
 
     document.getElementById('name').value = generateName();
+
+    var html5QrcodeScanner = new Html5QrcodeScanner("remoteSDPReader", { fps: 10, qrbox: 250 });
+    html5QrcodeScanner.render(
+        (decodedText, decodedResult) => {
+            console.log(`Scan result: ${decodedText}`, decodedResult);
+            document.getElementById('remoteSDP').value = decodedText;
+            html5QrcodeScanner.clear();
+        },
+        (errorMessage) => {
+            console.error(`Scan result: ${errorMessage}`);
+        }
+    );
 });
 
 
