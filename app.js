@@ -19,6 +19,8 @@ window.addEventListener('DOMContentLoaded', function () {
     document.getElementById('set').addEventListener('click', () => {
         setRemoteSdp();
     });
+
+    document.getElementById('name').value = generateName();
 });
 
 
@@ -32,7 +34,7 @@ function createPeerConnection() {
                 text: pc.localDescription.sdp,
                 width: 128,
                 height: 128,
-                correctLevel : QRCode.CorrectLevel.H
+                correctLevel: QRCode.CorrectLevel.H
             });
         }
     };
@@ -142,4 +144,11 @@ function sendMessage() {
             "timestamp": new Date()
         }));
     }
+}
+
+function generateName() {
+    // const CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const LENGTH = 4;
+    return Array.from(Array(LENGTH)).map(() => CHARS[Math.floor(Math.random() * CHARS.length)]).join('');
 }
