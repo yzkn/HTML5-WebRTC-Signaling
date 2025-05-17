@@ -1,4 +1,4 @@
-// Copyright (c) 2022 YA-androidapp(https://github.com/YA-androidapp) All rights reserved.
+// Copyright (c) 2025 YA-androidapp(https://github.com/YA-androidapp) All rights reserved.
 
 
 let dataChannel;
