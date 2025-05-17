@@ -124,6 +124,43 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="field is-horizontal">
+                            <div class="field-label"></div>
+                            <div class="field-body">
+                                <div class="field is-grouped">
+                                    <p class="control is-expanded">
+                                        <input type="file" id="fileInput" name="fileInput" />
+                                    </p>
+                                    <p class="control">
+                                        <button class="button is-primary" type="button" id="transfer"
+                                            name="transfer">Transfer</button>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field is-horizontal">
+                            <div class="field-label">Progress</div>
+                            <div class="field-body">
+                                <div class="field is-grouped">
+                                    <p class="control is-6">
+                                        <progress id="sendProgress" max="0" value="0"></progress>
+                                    </p>
+                                    <p class="control is-6">
+                                        <progress id="receiveProgress" max="0" value="0"></progress>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field is-horizontal">
+                            <div class="field-label">Received file</div>
+                            <div class="field-body">
+                                <div class="field is-grouped">
+                                    <p class="control">
+                                        <a id="download"></a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="mt-6">

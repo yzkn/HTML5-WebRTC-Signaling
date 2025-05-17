@@ -5,6 +5,7 @@ let dataChannel;
 let dataChannelOptions = { ordered: false };
 let peerConnection;
 let peerConnectionConfig = { 'iceServers': [{ "urls": "stun:stun.l.google.com:19302" }] };
+let timestampStart;
 
 
 window.addEventListener('DOMContentLoaded', function () {
@@ -18,6 +19,10 @@ window.addEventListener('DOMContentLoaded', function () {
 
     document.getElementById('set').addEventListener('click', () => {
         setRemoteSdp();
+    });
+
+    document.getElementById('transfer').addEventListener('click', () => {
+        sendData();
     });
 
     document.getElementById('name').value = generateName();
@@ -93,6 +98,36 @@ function connect() {
     document.getElementById('status').value = 'offer created';
 }
 
+function receiveFile(event) {
+    const downloadAnchor = document.querySelector('a#download');
+    const receiveProgress = document.querySelector('progress#receiveProgress');
+
+    let receiveBuffer = [];
+    let receivedSize = 0;
+
+    console.log(`Received Message ${event.data.size}`);
+    receiveBuffer.push(event.data);
+    receivedSize += event.data.size;
+    receiveProgress.value = receivedSize;
+
+    if (receivedSize > 0) {
+        const received = new Blob(receiveBuffer);
+        receiveBuffer = [];
+
+        const filename = 'received';
+
+        downloadAnchor.href = URL.createObjectURL(received);
+        downloadAnchor.download = filename;
+        downloadAnchor.textContent =
+            `Click to download '${filename}' (${receivedSize} bytes)`;
+        downloadAnchor.style.display = 'block';
+
+        const bitrate = Math.round(receivedSize * 8 /
+            ((new Date()).getTime() - timestampStart));
+        document.getElementById('history').value = '> ' + `<strong>Average Bitrate:</strong> ${bitrate} kbits/sec` + '\n' + document.getElementById('history').value;
+    }
+}
+
 function setupDataChannel(dc) {
     dc.onclose = function (evt) {
         console.log(evt);
@@ -101,9 +136,16 @@ function setupDataChannel(dc) {
         console.error(err);
     };
     dc.onmessage = function (evt) {
-        console.log(evt);
-        let obj = JSON.parse(evt.data);
-        document.getElementById('history').value = obj['name'] + '> ' + obj['message'] + '\n' + document.getElementById('history').value;
+        console.log({ evt });
+        if ('name' in evt.data && 'message' in evt.data) {
+            let obj = JSON.parse(evt.data);
+            document.getElementById('history').value = obj['name'] + '> ' + obj['message'] + '\n' + document.getElementById('history').value;
+        } else {
+            if (!timestampStart) {
+                timestampStart = (new Date()).getTime();
+            }
+            receiveFile(evt);
+        }
     };
     dc.onopen = function (evt) {
         console.log(evt);
@@ -163,4 +205,41 @@ function generateName() {
     const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const LENGTH = 4;
     return Array.from(Array(LENGTH)).map(() => CHARS[Math.floor(Math.random() * CHARS.length)]).join('');
+}
+
+
+function sendData() {
+    const chunkSize = 16384;
+    const fileInput = document.querySelector('input#fileInput');
+    const sendProgress = document.querySelector('progress#sendProgress');
+
+    const file = fileInput.files[0];
+    console.log(`File is ${[file.name, file.size, file.type, file.lastModified].join(' ')}`);
+
+    // Handle 0 size files.
+    if (file.size === 0) {
+        document.getElementById('history').value = '> File is empty\n' + document.getElementById('history').value;
+        return;
+    }
+
+    sendProgress.max = file.size;
+    fileReader = new FileReader();
+    let offset = 0;
+    fileReader.addEventListener('error', error => console.error('Error reading file:', error));
+    fileReader.addEventListener('abort', event => console.log('File reading aborted:', event));
+    fileReader.addEventListener('load', e => {
+        console.log('FileRead.onload ', e);
+        dataChannel.send(e.target.result);
+        offset += e.target.result.byteLength;
+        sendProgress.value = offset;
+        if (offset < file.size) {
+            readSlice(offset);
+        }
+    });
+    const readSlice = o => {
+        console.log('readSlice ', o);
+        const slice = file.slice(offset, o + chunkSize);
+        fileReader.readAsArrayBuffer(slice);
+    };
+    readSlice(0);
 }
