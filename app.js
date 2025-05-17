@@ -98,16 +98,16 @@ function connect() {
     document.getElementById('status').value = 'offer created';
 }
 
+let receiveBuffer = [];
+let receivedSize = 0;
+
 function receiveFile(event) {
     const downloadAnchor = document.querySelector('a#download');
     const receiveProgress = document.querySelector('progress#receiveProgress');
 
-    let receiveBuffer = [];
-    let receivedSize = 0;
-
-    console.log(`Received Message ${event.data.size}`);
+    console.log(`Received Message ${event.data.size ?? 0}`);
     receiveBuffer.push(event.data);
-    receivedSize += event.data.size;
+    receivedSize += (event.data.size ?? 0);
     receiveProgress.value = receivedSize;
 
     if (receivedSize > 0) {
@@ -121,10 +121,6 @@ function receiveFile(event) {
         downloadAnchor.textContent =
             `Click to download '${filename}' (${receivedSize} bytes)`;
         downloadAnchor.style.display = 'block';
-
-        const bitrate = Math.round(receivedSize * 8 /
-            ((new Date()).getTime() - timestampStart));
-        document.getElementById('history').value = '> ' + `<strong>Average Bitrate:</strong> ${bitrate} kbits/sec` + '\n' + document.getElementById('history').value;
     }
 }
 
@@ -137,15 +133,23 @@ function setupDataChannel(dc) {
     };
     dc.onmessage = function (evt) {
         console.log({ evt });
-        if ('name' in evt.data && 'message' in evt.data) {
+
+        try {
             let obj = JSON.parse(evt.data);
-            document.getElementById('history').value = obj['name'] + '> ' + obj['message'] + '\n' + document.getElementById('history').value;
-        } else {
-            if (!timestampStart) {
-                timestampStart = (new Date()).getTime();
+            if ('filename' in obj) {
+                // document.getElementById('history').value = obj['name'] + '> ' + obj['message'] + '\n' + document.getElementById('history').value;
+            } else if ('name' in obj && 'message' in obj) {
+                document.getElementById('history').value = obj['name'] + '> ' + obj['message'] + '\n' + document.getElementById('history').value;
             }
-            receiveFile(evt);
+
+            return;
+        } catch (error) {
         }
+
+        if (!timestampStart) {
+            timestampStart = (new Date()).getTime();
+        }
+        receiveFile(evt);
     };
     dc.onopen = function (evt) {
         console.log(evt);
@@ -207,7 +211,6 @@ function generateName() {
     return Array.from(Array(LENGTH)).map(() => CHARS[Math.floor(Math.random() * CHARS.length)]).join('');
 }
 
-
 function sendData() {
     const chunkSize = 16384;
     const fileInput = document.querySelector('input#fileInput');
@@ -229,6 +232,13 @@ function sendData() {
     fileReader.addEventListener('abort', event => console.log('File reading aborted:', event));
     fileReader.addEventListener('load', e => {
         console.log('FileRead.onload ', e);
+
+        dataChannel.send(JSON.stringify({
+            "filename": file.name,
+            "offset": offset,
+            "timestamp": new Date()
+        }));
+
         dataChannel.send(e.target.result);
         offset += e.target.result.byteLength;
         sendProgress.value = offset;
