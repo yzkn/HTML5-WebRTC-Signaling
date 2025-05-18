@@ -98,6 +98,8 @@ function connect() {
     document.getElementById('status').value = 'offer created';
 }
 
+let receivedFileName = null;
+let receivedFileSize = null;
 let receiveBuffer = [];
 let receivedSize = 0;
 
@@ -105,22 +107,25 @@ function receiveFile(event) {
     const downloadAnchor = document.querySelector('a#download');
     const receiveProgress = document.querySelector('progress#receiveProgress');
 
-    console.log(`Received Message ${event.data.size ?? 0}`);
+    console.log(`Received Message ${event.data.size ?? 0}`, receivedFileName, receivedFileSize);
     receiveBuffer.push(event.data);
     receivedSize += (event.data.size ?? 0);
     receiveProgress.value = receivedSize;
 
-    if (receivedSize > 0) {
+    if (receivedSize === receivedFileSize) {
+        console.log(receivedSize, '===', receivedFileSize);
         const received = new Blob(receiveBuffer);
-        receiveBuffer = [];
-
-        const filename = 'received';
 
         downloadAnchor.href = URL.createObjectURL(received);
-        downloadAnchor.download = filename;
+        downloadAnchor.download = receivedFileName;
         downloadAnchor.textContent =
-            `Click to download '${filename}' (${receivedSize} bytes)`;
+            `Click to download '${receivedFileName}' (${receivedSize} bytes)`;
         downloadAnchor.style.display = 'block';
+
+        receiveBuffer = [];
+        receivedFileName = null;
+        receivedFileSize = null;
+        receivedSize = 0;
     }
 }
 
@@ -137,7 +142,9 @@ function setupDataChannel(dc) {
         try {
             let obj = JSON.parse(evt.data);
             if ('filename' in obj) {
-                // document.getElementById('history').value = obj['name'] + '> ' + obj['message'] + '\n' + document.getElementById('history').value;
+                receivedFileName = obj['filename'];
+                receivedFileSize = obj['filesize'];
+                document.getElementById('history').value = '> ' + `Receiving... '${receivedFileName}' (${receivedFileSize} bytes)` + '\n' + document.getElementById('history').value;
             } else if ('name' in obj && 'message' in obj) {
                 document.getElementById('history').value = obj['name'] + '> ' + obj['message'] + '\n' + document.getElementById('history').value;
             }
@@ -149,7 +156,7 @@ function setupDataChannel(dc) {
         if (!timestampStart) {
             timestampStart = (new Date()).getTime();
         }
-        receiveFile(evt);
+        receiveFile(evt, receivedFileName, receivedFileSize);
     };
     dc.onopen = function (evt) {
         console.log(evt);
@@ -225,6 +232,12 @@ function sendData() {
         return;
     }
 
+    dataChannel.send(JSON.stringify({
+        "filename": file.name,
+        "filesize": file.size,
+        "timestamp": new Date()
+    }));
+
     sendProgress.max = file.size;
     fileReader = new FileReader();
     let offset = 0;
@@ -232,12 +245,6 @@ function sendData() {
     fileReader.addEventListener('abort', event => console.log('File reading aborted:', event));
     fileReader.addEventListener('load', e => {
         console.log('FileRead.onload ', e);
-
-        dataChannel.send(JSON.stringify({
-            "filename": file.name,
-            "offset": offset,
-            "timestamp": new Date()
-        }));
 
         dataChannel.send(e.target.result);
         offset += e.target.result.byteLength;
