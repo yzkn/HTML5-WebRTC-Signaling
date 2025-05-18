@@ -129,7 +129,17 @@
                             <div class="field-body">
                                 <div class="field is-grouped">
                                     <p class="control is-expanded">
-                                        <input type="file" id="fileInput" name="fileInput" />
+                                    <div class="file">
+                                        <label class="file-label">
+                                            <input class="file-input" type="file" id="fileInput" name="fileInput" />
+                                            <span class="file-cta">
+                                                <span class="file-icon">
+                                                    <i class="fas fa-upload"></i>
+                                                </span>
+                                                <span class="file-label"> Choose a file… </span>
+                                            </span>
+                                        </label>
+                                    </div>
                                     </p>
                                     <p class="control">
                                         <button class="button is-primary" type="button" id="transfer"
@@ -142,11 +152,13 @@
                             <div class="field-label">Progress</div>
                             <div class="field-body">
                                 <div class="field is-grouped">
-                                    <p class="control is-6">
-                                        <progress id="sendProgress" max="0" value="0"></progress>
+                                    <p class="control is-expanded">
+                                        <progress class="progress is-primary" id="sendProgress" max="0"
+                                            value="0"></progress>
                                     </p>
-                                    <p class="control is-6">
-                                        <progress id="receiveProgress" max="0" value="0"></progress>
+                                    <p class="control is-expanded">
+                                        <progress class="progress is-primary" id="receiveProgress" max="0"
+                                            value="0"></progress>
                                     </p>
                                 </div>
                             </div>
