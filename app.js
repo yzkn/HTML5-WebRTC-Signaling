@@ -64,7 +64,7 @@ function createPeerConnection() {
                 text: document.getElementById('remoteSDP').value === '' ? localSDPUrl : localSDP,
                 width: 360,
                 height: 360,
-                correctLevel: QRCode.CorrectLevel.H
+                correctLevel: QRCode.CorrectLevel.Q
             });
         }
     };
