@@ -28,16 +28,6 @@
                             </div>
                         </div>
                         <div class="field is-horizontal">
-                            <div class="field-label"></div>
-                            <div class="field-body">
-                                <div class="field">
-                                    <div class="control">
-                                        <button class="button is-primary" type="button" id="connect">Start</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="field is-horizontal">
                             <div class="field-label is-normal">
                                 <label class="label">Status</label>
                             </div>
@@ -60,15 +50,15 @@
                             <div class="field-body">
                                 <div class="field">
                                     <div class="columns">
-                                        <div class="column is-8">
+                                        <div class="column is-4">
                                             <div class="control">
                                                 <textarea class="textarea" id="localSDP" name="localSDP"
                                                     readonly="readonly"></textarea>
                                             </div>
                                         </div>
-                                        <div class="column is-4">
+                                        <div class="column is-8">
                                             <div class="control">
-                                                <div id="localSDPQrcode"></div>
+                                                <div class="p-6" id="localSDPUrlQrcode"></div>
                                             </div>
                                         </div>
                                     </div>
@@ -82,12 +72,12 @@
                             <div class="field-body">
                                 <div class="field">
                                     <div class="columns">
-                                        <div class="column is-4">
+                                        <div class="column is-8">
                                             <div class="control">
                                                 <div id="remoteSDPReader"></div>
                                             </div>
                                         </div>
-                                        <div class="column is-8">
+                                        <div class="column is-4">
                                             <div class="control">
                                                 <textarea class="textarea" id="remoteSDP" name="remoteSDP"></textarea>
                                             </div>

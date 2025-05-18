@@ -9,10 +9,6 @@ let timestampStart;
 
 
 window.addEventListener('DOMContentLoaded', function () {
-    document.getElementById('connect').addEventListener('click', () => {
-        connect();
-    });
-
     document.getElementById('send').addEventListener('click', () => {
         sendMessage();
     });
@@ -38,6 +34,18 @@ window.addEventListener('DOMContentLoaded', function () {
             console.error(`Scan result: ${errorMessage}`);
         }
     );
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.size == 0) {
+        connect();
+    } else {
+        if (params.has('sdp')) {
+            const remoteSDP = params.get('sdp');
+            document.getElementById('remoteSDP').value = decodeURIComponent(remoteSDP);
+
+            setRemoteSdp();
+        }
+    }
 });
 
 
@@ -45,12 +53,17 @@ function createPeerConnection() {
     let pc = new RTCPeerConnection(peerConnectionConfig);
     pc.onicecandidate = function (evt) {
         if (!evt.candidate) {
-            document.getElementById('localSDP').value = pc.localDescription.sdp;
+            const localSDP = pc.localDescription.sdp;
+            const localSDPUrl = location.href.split('?')[0] + '?sdp=' + encodeURIComponent(localSDP);
+            console.log({ localSDP });
+            console.log({ localSDPUrl });
 
-            new QRCode(document.getElementById("localSDPQrcode"), {
-                text: pc.localDescription.sdp,
-                width: 128,
-                height: 128,
+            document.getElementById('localSDP').value = localSDP;
+
+            new QRCode(document.getElementById("localSDPUrlQrcode"), {
+                text: document.getElementById('remoteSDP').value === '' ? localSDPUrl : localSDP,
+                width: 360,
+                height: 360,
                 correctLevel: QRCode.CorrectLevel.H
             });
         }
