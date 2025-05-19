@@ -54,7 +54,7 @@ function createPeerConnection() {
     pc.onicecandidate = function (evt) {
         if (!evt.candidate) {
             const localSDP = pc.localDescription.sdp;
-            const localSDPUrl = location.href.split('?')[0] + '?sdp=' + localSDP; // encodeURIComponent(localSDP);
+            const localSDPUrl = location.href.split('?')[0] + '?sdp=' + encodeURIComponent(localSDP);
             console.log({ localSDP });
             console.log({ localSDPUrl });
 
